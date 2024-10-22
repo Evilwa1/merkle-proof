@@ -10,17 +10,17 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.EnumMap;
 
-@JsonDeserialize(using = Balance20.BalanceDeserializer.class)
-public class Balance20 extends Balance<Asset20> {
+@JsonDeserialize(using = Balance40V2.BalanceDeserializer.class)
+public class Balance40V2 extends Balance<Asset40V2> {
 
-    public Balance20() {
-        balances = new EnumMap<>(Asset20.class);
+    public Balance40V2() {
+        balances = new EnumMap<>(Asset40V2.class);
     }
 
     @Override
     public boolean validate() {
         try {
-            for (Asset20 asset : Asset20.getBalances()) {
+            for (Asset40V2 asset : Asset40V2.getBalances()) {
                 new BigDecimal(balances.get(asset));
             }
         } catch (NullPointerException | NumberFormatException e) {
@@ -30,9 +30,9 @@ public class Balance20 extends Balance<Asset20> {
     }
 
     @Override
-    public Balance<Asset20> add(Balance<Asset20> other) {
-        Balance20 res = new Balance20();
-        for (Asset20 asset : Asset20.getBalances()) {
+    public Balance<Asset40V2> add(Balance<Asset40V2> other) {
+        Balance40V2 res = new Balance40V2();
+        for (Asset40V2 asset : Asset40V2.getBalances()) {
             BigDecimal thisValue = new BigDecimal(this.balances.get(asset));
             BigDecimal otherValue = new BigDecimal(other.balances.get(asset));
             BigDecimal sum = thisValue.add(otherValue).setScale(asset.getScale(), asset.getMode());
@@ -41,20 +41,18 @@ public class Balance20 extends Balance<Asset20> {
         return res;
     }
 
-    public static class BalanceDeserializer extends JsonDeserializer<Balance20> {
+    public static class BalanceDeserializer extends JsonDeserializer<Balance40V2> {
 
         @Override
-        public Balance20 deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-            Balance20 balance = new Balance20();
-            EnumMap<Asset20, String> balanceMap = balance.getBalances();
+        public Balance40V2 deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+            Balance40V2 balance = new Balance40V2();
+            EnumMap<Asset40V2, String> balanceMap = balance.getBalances();
 
             JsonToken currentToken = parser.nextToken();
             while (currentToken != JsonToken.END_OBJECT) {
-                String assetName = parser.getCurrentName();
-                Asset20 asset = Asset20.valueOf(assetName);
+                Asset40V2 asset = Asset40V2.valueOf(parser.getCurrentName());
                 parser.nextToken();
-                String value = parser.getText();
-                balanceMap.put(asset, value);
+                balanceMap.put(asset, parser.getText());
                 currentToken = parser.nextToken();
             }
 
